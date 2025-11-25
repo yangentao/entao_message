@@ -1,30 +1,32 @@
+import 'package:entao_message/src/weaks.dart';
+
 abstract mixin class OnMessage {
   void onMsg(Msg msg) {}
 }
 
-class MsgCenter {
-  MsgCenter._();
+final MessageCenter MsgCenter = MessageCenter();
 
-  static final Set<WeakReference<OnMessage>> _allSet = {};
+class MessageCenter {
+  MessageCenter();
 
-  static void add(OnMessage callback) {
-    remove(callback);
-    _allSet.add(WeakReference(callback));
+  final WeakSet<OnMessage> _allSet = WeakSet<OnMessage>();
+
+  void add(OnMessage callback) {
+    _allSet.addValue(callback);
   }
 
-  static void remove(OnMessage callback) {
-    _allSet.removeWhere((value) => value.target == null || identical(value.target, callback));
+  void remove(OnMessage callback) {
+    _allSet.removeValue(callback);
   }
 
-  static void fireSync(Msg msg) {
-    _allSet.removeWhere((value) => value.target == null);
-    List<OnMessage> ls = [..._allSet.map((e) => e.target).nonNulls];
+  void fireSync(Msg msg) {
+    List<OnMessage> ls = _allSet.copyValues();
     for (OnMessage c in ls) {
       c.onMsg(msg);
     }
   }
 
-  static Future<void> fire(Msg msg) async {
+  Future<void> fire(Msg msg) async {
     fireSync(msg);
   }
 }

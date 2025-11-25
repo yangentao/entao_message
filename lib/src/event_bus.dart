@@ -1,4 +1,4 @@
-import 'weak_multi_map.dart';
+import 'weaks.dart';
 
 typedef BusCallback = void Function(Object event, Object? arg);
 
@@ -17,28 +17,17 @@ class EventBus {
   }
 
   static void off({Object? event, BusCallback? callback}) {
-    if (event == null) {
-      if (callback == null) {
-        return;
-      } else {
-        _map.removeValue(callback);
-      }
-    } else {
-      if (callback == null) {
-        _map.remove(event);
-      } else {
-        _map[event]?.removeValue(callback);
-      }
+    if (callback != null) {
+      _map.removeValue(callback, key: event);
+    } else if (event != null) {
+      _map.remove(event);
     }
   }
 
   static void emit(Object event, [Object? arg]) {
-    WeakList<BusCallback>? oldList = _map[event];
-    if (oldList == null) return;
-    oldList.clearNullValue();
-    WeakList<BusCallback> ls = WeakList<BusCallback>.from(oldList);
-    for (WeakReference<BusCallback> c in ls) {
-      c.target?.call(event, arg);
+    List<BusCallback> ls = _map.copyValues(event);
+    for (BusCallback c in ls) {
+      c.call(event, arg);
     }
   }
 }

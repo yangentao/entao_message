@@ -1,21 +1,23 @@
 import 'package:entao_message/src/msg_call.dart';
 
 void main() async {
-  MsgCall.add("hello", (int n) => print("lambda1, $n "));
-  MsgCall.add("hello", (int n) => print("lambda2, $n "));
-  MsgCall.add("hello", hello3);
-  MsgCall.add("hi", hello3);
-  MsgCall.remove(hello3, msg: "hello");
+  MsgCall.add("on_update", () => print("on update 1 "));
+  MsgCall.add("on_update", () => print("on update 2 "));
 
-  MsgCall.fire("hello", list: [9]);
-  MsgCall.fire("hi", list: [8]);
+  MsgCall.fire("on_update");
+  // on update 1
+  // on update 2
+
+  MsgCall.add("on_value_int", onValueInt);
+
+  MsgCall.fire("on_value_int", 8, 2, message: "this is a message");
+  // onValueInt, 8, 2, this is a message
+  MsgCall.fireSync("on_value_int", 8, 2);
+  // onValueInt, 8, 2, null
 
   await Future.delayed(Duration(seconds: 2));
-  // lambda1, 9
-  // lambda2, 9
-  // func3, 8
 }
 
-void hello3(int n) {
-  print("func3, $n");
+void onValueInt(int n, int m, {String? message}) {
+  print("onValueInt, $n, $m, $message ");
 }
