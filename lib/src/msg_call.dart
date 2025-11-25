@@ -4,14 +4,18 @@ final MsgCall = MessageCall();
 
 final class MessageCall {
   final WeakMultiMap<Object, Function> _map = WeakMultiMap<Object, Function>();
-  late final dynamic fire = _MsgCallFire<void>(callback: (List<dynamic> argList, Map<String, dynamic> argMap) {
-    fireMessage(argList.first, list: argList.sublist(1), map: argMap);
+  late final dynamic fire = _MsgCallFire<Future<List<dynamic>>>(callback: (List<dynamic> argList, Map<String, dynamic> argMap) {
+    return fireMessage(argList.first, list: argList.sublist(1), map: argMap);
   });
-  late final dynamic fireSync = _MsgCallFire<void>(callback: (List<dynamic> argList, Map<String, dynamic> argMap) {
-    fireMessageSync(argList.first, list: argList.sublist(1), map: argMap);
+  late final dynamic fireSync = _MsgCallFire<List<dynamic>>(callback: (List<dynamic> argList, Map<String, dynamic> argMap) {
+    return fireMessageSync(argList.first, list: argList.sublist(1), map: argMap);
   });
 
   MessageCall();
+
+  void clear() {
+    _map.clear();
+  }
 
   void add(Object msg, Function callback) {
     _map.add(msg, callback);
@@ -21,16 +25,19 @@ final class MessageCall {
     _map.removeValue(callback, key: msg);
   }
 
-  Future<void> fireMessage(Object msg, {List<dynamic>? list, Map<String, dynamic>? map}) async {
-    fireMessageSync(msg, list: list, map: map);
+  Future<List<dynamic>> fireMessage(Object msg, {List<dynamic>? list, Map<String, dynamic>? map}) async {
+    return fireMessageSync(msg, list: list, map: map);
   }
 
-  void fireMessageSync(Object msg, {List<dynamic>? list, Map<String, dynamic>? map}) {
+  List<dynamic> fireMessageSync(Object msg, {List<dynamic>? list, Map<String, dynamic>? map}) {
     List<Function> ls = _map.copyValues(msg);
     Map<Symbol, dynamic>? nmap = map?.map((k, v) => MapEntry(Symbol(k), v));
+    List<dynamic> retList = [];
     for (Function f in ls) {
-      Function.apply(f, list, nmap);
+      dynamic r = Function.apply(f, list, nmap);
+      retList.add(r);
     }
+    return retList;
   }
 }
 
