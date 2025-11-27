@@ -1,6 +1,6 @@
 name: entao_message
 description: Dispatch message with variant arguments.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/yangentao/entao_message
 homepage: https://github.com/yangentao/entao_message
 
@@ -9,9 +9,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  # path: ^1.9.0
   entao_lint: ^1.0.1
-#  entao_dutil: ^2.1.1
 dev_dependencies:
   lints: ^6.0.0
   test: ^1.25.6
