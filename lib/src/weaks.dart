@@ -59,6 +59,7 @@ class WeakMultiMap<K extends Object, V extends Object> {
 
   List<V> copyValues(K key) {
     WeakList<V>? ls = map[key];
+    print("回调个数: ${ls?.length}");
     if (ls == null) return [];
     ls.clearNullValue();
     return ls.map((e) => e.target!).toList();
@@ -113,5 +114,72 @@ extension WeakSetExt<V extends Object> on WeakSet<V> {
 
   List<V> copyValues() {
     return this.where((e) => e.target != null).map((e) => e.target!).toList();
+  }
+}
+
+class MultiMap<K extends Object, V> {
+  final Map<K, List<V>> map = {};
+
+  bool get isEmpty => map.isEmpty;
+
+  bool get isNotEmpty => map.isNotEmpty;
+
+  int get length => map.length;
+
+  Iterable<K> get keys => map.keys;
+
+  Iterable<MapEntry<K, List<V>>> get entries => map.entries;
+
+  List<V>? operator [](K key) {
+    return map[key];
+  }
+
+  void operator []=(K key, V value) {
+    add(key, value);
+  }
+
+  List<V>? get(K key) {
+    return map[key];
+  }
+
+  void add(K key, V value) {
+    List<V>? ls = map[key];
+    if (ls == null) {
+      map[key] = [value];
+    } else {
+      ls.add(value);
+    }
+  }
+
+  bool containsValue(V value, {K? key}) {
+    if (key != null) {
+      return map[key]?.contains(value) ?? false;
+    }
+    for (var e in map.entries) {
+      if (e.value.contains(value)) return true;
+    }
+    return false;
+  }
+
+  bool containsKey(K key) {
+    return map.containsKey(key);
+  }
+
+  List<V>? remove(K key) {
+    return map.remove(key);
+  }
+
+  void removeValue(V value, {K? key}) {
+    if (key != null) {
+      map[key]?.remove(value);
+    } else {
+      for (var e in map.entries) {
+        e.value.remove(value);
+      }
+    }
+  }
+
+  void clear() {
+    map.clear();
   }
 }

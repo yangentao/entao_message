@@ -5,14 +5,14 @@ typedef BusCallback = void Function(Object event, Object? arg);
 class EventBus {
   EventBus._();
 
-  static final WeakMultiMap<Object, BusCallback> _map = WeakMultiMap<Object, BusCallback>();
+  static final MultiMap<Object, BusCallback> _map = MultiMap<Object, BusCallback>();
 
   static void on(Object event, BusCallback callback) {
     var ls = _map[event];
     if (ls == null) {
       _map[event] = callback;
     } else {
-      ls.addValue(callback);
+      ls.add(callback);
     }
   }
 
@@ -25,9 +25,11 @@ class EventBus {
   }
 
   static void emit(Object event, [Object? arg]) {
-    List<BusCallback> ls = _map.copyValues(event);
-    for (BusCallback c in ls) {
-      c.call(event, arg);
+    List<BusCallback>? ls = _map.get(event);
+    if (ls != null) {
+      for (BusCallback c in ls) {
+        c.call(event, arg);
+      }
     }
   }
 }

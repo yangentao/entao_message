@@ -3,7 +3,7 @@ import 'weaks.dart';
 final MsgCall = MessageCall();
 
 final class MessageCall {
-  final WeakMultiMap<Object, Function> _map = WeakMultiMap<Object, Function>();
+  final MultiMap<Object, Function> _map = MultiMap<Object, Function>();
   late final dynamic fire = _MsgCallFire<Future<List<dynamic>>>(callback: (List<dynamic> argList, Map<String, dynamic> argMap) {
     return fireMessage(argList.first, list: argList.sublist(1), map: argMap);
   });
@@ -12,6 +12,12 @@ final class MessageCall {
   });
 
   MessageCall();
+
+  void dump() {
+    for (var e in _map.entries) {
+      print("${e.key},  ${e.value.map((a) => a)}");
+    }
+  }
 
   void clear() {
     _map.clear();
@@ -30,7 +36,8 @@ final class MessageCall {
   }
 
   List<dynamic> fireMessageSync(Object msg, {List<dynamic>? list, Map<String, dynamic>? map}) {
-    List<Function> ls = _map.copyValues(msg);
+    List<Function>? ls = _map.get(msg);
+    if (ls == null || ls.isEmpty) return [];
     Map<Symbol, dynamic>? nmap = map?.map((k, v) => MapEntry(Symbol(k), v));
     List<dynamic> retList = [];
     for (Function f in ls) {
